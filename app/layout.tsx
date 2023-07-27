@@ -19,6 +19,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
+      <head>
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="apple-touch-icon" href="/icon.png"></link>
+        <link rel="icon" href="/favicon.png"></link>
+        <meta name="theme-color" content="#080808" />
+      </head>
       <body className={bizUd.className}>{children}</body>
     </html>
   );
