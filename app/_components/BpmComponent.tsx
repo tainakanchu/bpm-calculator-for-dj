@@ -19,34 +19,36 @@ export const BpmComponent: React.FC<Props> = ({}) => {
 
   // sdの値に応じてbpmの文字の色を変える
   // sdの値は bpm に対しての割合で評価する
-  const { sd, value } = bpm;
+  const { sd: _sd, value } = bpm;
+
+  const sd = _sd ?? 50;
   // sd が bpm の値に対してどれぐらいかで評価する
   const ratio = sd && value ? sd / value : 1;
 
-  // 0から1の範囲で小さいときは緑、大きいときは黄色→赤とグラデーションする
+  // 5刻みぐらいで色を変える
   const bpmColor = React.useMemo(() => {
-    if (ratio < 0.1) {
+    if (sd < 30) {
       return "text-green-500";
-    } else if (ratio < 0.2) {
+    } else if (sd < 35) {
       return "text-green-400";
-    } else if (ratio < 0.3) {
+    } else if (sd < 40) {
       return "text-green-300";
-    } else if (ratio < 0.4) {
+    } else if (sd < 45) {
       return "text-yellow-200";
-    } else if (ratio < 0.5) {
+    } else if (sd < 50) {
       return "text-yellow-100";
-    } else if (ratio < 0.6) {
+    } else if (sd < 55) {
       return "text-red-100";
-    } else if (ratio < 0.7) {
+    } else if (sd < 60) {
       return "text-red-200";
-    } else if (ratio < 0.8) {
+    } else if (sd < 65) {
       return "text-red-300";
-    } else if (ratio < 0.9) {
+    } else if (sd < 70) {
       return "text-red-400";
     } else {
       return "text-red-500";
     }
-  }, [ratio]);
+  }, [sd]);
 
   const halfBpm = React.useMemo(() => {
     return bpm.value ? bpm.value / 2 : undefined;
