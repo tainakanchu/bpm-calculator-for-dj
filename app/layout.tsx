@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { BIZ_UDPGothic } from "next/font/google";
+import Pwa from "./_components/Pwa";
 
 const bizUd = BIZ_UDPGothic({
   weight: "400",
@@ -25,7 +26,10 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.png"></link>
         <meta name="theme-color" content="#080808" />
       </head>
-      <body className={bizUd.className}>{children}</body>
+      <body className={bizUd.className}>
+        {children}
+        <Pwa />
+      </body>
     </html>
   );
 }
