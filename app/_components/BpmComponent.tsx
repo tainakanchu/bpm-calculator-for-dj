@@ -3,6 +3,7 @@ import React from "react";
 
 import { BpmButton } from "./BpmButton";
 import { bpmCalculator } from "../_utils";
+import { SubBpmComponent } from "./SubBpmComponent";
 
 type Props = {};
 
@@ -22,8 +23,6 @@ export const BpmComponent: React.FC<Props> = ({}) => {
   const { sd: _sd, value } = bpm;
 
   const sd = _sd ?? 50;
-  // sd が bpm の値に対してどれぐらいかで評価する
-  const ratio = sd && value ? sd / value : 1;
 
   // 5刻みぐらいで色を変える
   const bpmColor = React.useMemo(() => {
@@ -51,16 +50,16 @@ export const BpmComponent: React.FC<Props> = ({}) => {
   }, [sd]);
 
   const halfBpm = React.useMemo(() => {
-    return bpm.value ? bpm.value / 2 : undefined;
-  }, [bpm]);
+    return value ? value / 2 : undefined;
+  }, [value]);
 
   const threeFourthBpm = React.useMemo(() => {
-    return bpm.value ? (bpm.value * 3) / 4 : undefined;
-  }, [bpm]);
+    return value ? (value * 3) / 4 : undefined;
+  }, [value]);
 
   const fourThirdBpm = React.useMemo(() => {
-    return bpm.value ? (bpm.value * 4) / 3 : undefined;
-  }, [bpm]);
+    return value ? (value * 4) / 3 : undefined;
+  }, [value]);
 
   return (
     <div>
@@ -71,22 +70,15 @@ export const BpmComponent: React.FC<Props> = ({}) => {
             {bpm.value?.toFixed(1) ?? "🎶"}
           </p>
           <div className="flex flex-col gap-6 justify-center">
-            <div className="">
-              <p>1/2</p>
-              <p className="text-5xl font-bold">{halfBpm?.toFixed(1) ?? "-"}</p>
-            </div>
-            <div className="">
-              <p>3/4</p>
-              <p className="text-5xl font-bold">
-                {threeFourthBpm?.toFixed(1) ?? "-"}
-              </p>
-            </div>
-            <div className="">
-              <p>4/3</p>
-              <p className="text-5xl font-bold">
-                {fourThirdBpm?.toFixed(1) ?? "-"}
-              </p>
-            </div>
+            <SubBpmComponent title={"1/2"} value={halfBpm?.toFixed(1) ?? "-"} />
+            <SubBpmComponent
+              title={"3/4"}
+              value={threeFourthBpm?.toFixed(1) ?? "-"}
+            />
+            <SubBpmComponent
+              title={"4/3"}
+              value={fourThirdBpm?.toFixed(1) ?? "-"}
+            />
           </div>
         </div>
       </BpmButton>
