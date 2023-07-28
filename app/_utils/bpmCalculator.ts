@@ -4,6 +4,11 @@ const MAX_PAST_TIME = 20 * 1000;
 // これ以上の間隔でのデータは考慮しない
 const DIFF_THRESHOLD = 3000;
 
+const simpleMovingAverageHandler =
+  (count: number) =>
+  (acc: number, cur: number): number =>
+    acc + cur / count;
+
 type Return = {
   value: number | null;
   sd: number | null;
@@ -31,15 +36,14 @@ export const bpmCalculator: (dateList: Date[]) => Return = (dateList) => {
     // 一定の秒数以上の差分は考慮しない
     .filter((diff) => diff < DIFF_THRESHOLD);
 
-  // TODO: 平均値からあまりにも外れてるデータも考慮しない
-
   // 必要数のデータがない場合は null を返す
   if (filteredDiffList.length < 1) return emptyReturn;
 
   // 差分の平均値を単純移動平均で計算
-  const average =
-    filteredDiffList.reduce((acc, cur) => acc + cur, 0) /
-    filteredDiffList.length;
+  const average = filteredDiffList.reduce(
+    simpleMovingAverageHandler(filteredDiffList.length),
+    0
+  );
 
   const σ = calculateStandardDeviation(filteredDiffList);
   const bpm = 60000 / average;
@@ -62,9 +66,10 @@ export const bpmCalculator: (dateList: Date[]) => Return = (dateList) => {
   if (filteredDiffList2.length < 8) return tmpReturn;
 
   // 改めて平均値を計算
-  const average2 =
-    filteredDiffList2.reduce((acc, cur) => acc + cur, 0) /
-    filteredDiffList2.length;
+  const average2 = filteredDiffList2.reduce(
+    simpleMovingAverageHandler(filteredDiffList2.length),
+    0
+  );
 
   // 改めて標準偏差を計算
   const sd = calculateStandardDeviation(filteredDiffList2);
