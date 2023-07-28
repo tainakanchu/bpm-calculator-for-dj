@@ -21,18 +21,15 @@ export const bpmCalculator: (dateList: Date[]) => Return = (dateList) => {
   );
 
   // 差分を計算
-  const diffList: number[] = filteredDateList.reduce<number[]>(
-    (acc, cur, idx, arr) => {
+  const filteredDiffList: number[] = filteredDateList
+    .reduce<number[]>((acc, cur, idx, arr) => {
       if (idx > 0) {
         acc.push(cur.getTime() - arr[idx - 1].getTime());
       }
       return acc;
-    },
-    []
-  );
-
-  // 一定の秒数以上の差分は考慮しない
-  const filteredDiffList = diffList.filter((diff) => diff < DIFF_THRESHOLD);
+    }, [])
+    // 一定の秒数以上の差分は考慮しない
+    .filter((diff) => diff < DIFF_THRESHOLD);
 
   // TODO: 平均値からあまりにも外れてるデータも考慮しない
 
@@ -44,15 +41,39 @@ export const bpmCalculator: (dateList: Date[]) => Return = (dateList) => {
     filteredDiffList.reduce((acc, cur) => acc + cur, 0) /
     filteredDiffList.length;
 
-  // BPMを計算
+  const σ = calculateStandardDeviation(filteredDiffList);
   const bpm = 60000 / average;
 
-  // 標準偏差を計算
-  const sd = calculateStandardDeviation(filteredDiffList);
-
-  return {
+  // 第一段階の計算結果
+  const tmpReturn = {
     value: bpm,
-    sd: sd,
+    sd: σ,
+  };
+
+  // サンプル数が少ないときはそのまま返す
+  if (filteredDiffList.length < 10) return tmpReturn;
+
+  // 標準偏差がわかったところで、平均から σ 以内のデータだけを使う
+  const filteredDiffList2 = filteredDiffList.filter(
+    (diff) => Math.abs(diff - average) < σ
+  );
+
+  // データが減りすぎの時は第一段階の計算結果を返す
+  if (filteredDiffList2.length < 8) return tmpReturn;
+
+  // 改めて平均値を計算
+  const average2 =
+    filteredDiffList2.reduce((acc, cur) => acc + cur, 0) /
+    filteredDiffList2.length;
+
+  // 改めて標準偏差を計算
+  const sd = calculateStandardDeviation(filteredDiffList2);
+
+  // BPMを計算
+  const bpm2 = 60000 / average2;
+  return {
+    value: bpm2,
+    sd,
   };
 };
 
@@ -61,12 +82,23 @@ const emptyReturn: Return = {
   sd: null,
 };
 
+/**
+ * 分散を計算する
+ *
+ * @param list
+ * @returns variance
+ */
 const calculateVariance = (list: number[]) => {
   const average = list.reduce((acc, cur) => acc + cur, 0) / list.length;
   return list.reduce((acc, cur) => acc + (cur - average) ** 2, 0) / list.length;
 };
 
-// 標準偏差を計算する
+/**
+ * 標準偏差を計算する
+ *
+ * @param list
+ * @returns
+ */
 const calculateStandardDeviation = (list: number[]) => {
   return Math.sqrt(calculateVariance(list));
 };
