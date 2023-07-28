@@ -20,46 +20,45 @@ export const bpmCalculator: (dateList: Date[]) => Return = (dateList) => {
     (date) => date.getTime() > past.getTime()
   );
 
-  if (filteredDateList.length > 1) {
-    // 差分を計算
-    const diffList: number[] = filteredDateList.reduce<number[]>(
-      (acc, cur, idx, arr) => {
-        if (idx > 0) {
-          acc.push(cur.getTime() - arr[idx - 1].getTime());
-        }
-        return acc;
-      },
-      []
-    );
+  // 差分を計算
+  const diffList: number[] = filteredDateList.reduce<number[]>(
+    (acc, cur, idx, arr) => {
+      if (idx > 0) {
+        acc.push(cur.getTime() - arr[idx - 1].getTime());
+      }
+      return acc;
+    },
+    []
+  );
 
-    // 一定の秒数以上の差分は考慮しない
-    const filteredDiffList = diffList.filter((diff) => diff < DIFF_THRESHOLD);
+  // 一定の秒数以上の差分は考慮しない
+  const filteredDiffList = diffList.filter((diff) => diff < DIFF_THRESHOLD);
 
-    // 平均値からあまりにも外れてるデータも考慮しない
+  // TODO: 平均値からあまりにも外れてるデータも考慮しない
 
-    // 差分の平均値を単純移動平均で計算
-    const average =
-      filteredDiffList.reduce((acc, cur) => acc + cur, 0) /
-      filteredDiffList.length;
+  // 必要数のデータがない場合は null を返す
+  if (filteredDiffList.length < 1) return emptyReturn;
 
-    // BPMを計算
-    const bpm = 60000 / average;
+  // 差分の平均値を単純移動平均で計算
+  const average =
+    filteredDiffList.reduce((acc, cur) => acc + cur, 0) /
+    filteredDiffList.length;
 
-    // bpm は小数点第一位まで
+  // BPMを計算
+  const bpm = 60000 / average;
 
-    // 標準偏差を計算
-    const sd = calculateStandardDeviation(filteredDiffList);
-
-    return {
-      value: bpm,
-      sd: sd,
-    };
-  }
+  // 標準偏差を計算
+  const sd = calculateStandardDeviation(filteredDiffList);
 
   return {
-    value: null,
-    sd: null,
+    value: bpm,
+    sd: sd,
   };
+};
+
+const emptyReturn: Return = {
+  value: null,
+  sd: null,
 };
 
 const calculateVariance = (list: number[]) => {
