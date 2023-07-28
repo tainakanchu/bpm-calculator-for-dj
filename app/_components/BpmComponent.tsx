@@ -2,8 +2,8 @@
 import React from "react";
 
 import { BpmButton } from "./BpmButton";
-import { bpmCalculator } from "../_utils";
 import { SubBpmComponent } from "./SubBpmComponent";
+import { bpmCalculator } from "../_utils";
 
 type Props = {};
 
@@ -83,7 +83,7 @@ export const BpmComponent: React.FC<Props> = ({}) => {
         </div>
       </BpmButton>
       <button
-        className="fixed bottom-0 right-0 p-4 bg-gray-100 dark:bg-gray-900"
+        className="fixed bottom-0 right-0 p-4 bg-zinc-800"
         onClick={() => {
           setDateList([]);
         }}
