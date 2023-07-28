@@ -1,35 +1,35 @@
-/** @type {import('next').NextConfig} */
-const withPWA = require("next-pwa")({
+const withPWAInit = require("next-pwa");
+
+const isDev = process.env.NODE_ENV !== "production";
+
+const withPWA = withPWAInit({
   dest: "public",
-  register: true,
-  skipWaiting: true,
-  runtimeCaching: [
-    {
-      urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
-      handler: "CacheFirst",
-      options: {
-        cacheName: "google-fonts",
-        expiration: {
-          maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60, // 365 days
-        },
-      },
-    },
-    {
-      urlPattern: /^https:\/\/bpm-calculator-for-dj\.vercel.app\/*/i,
-      handler: "NetworkFirst",
-      options: {
-        cacheName: "contents",
-        expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 365 * 24 * 60 * 60, // 365 days
-        },
-        networkTimeoutSeconds: 10,
-      },
+  disable: isDev,
+
+  exclude: [
+    // add buildExcludes here
+    ({ asset, compilation }) => {
+      if (
+        asset.name.startsWith("server/") ||
+        asset.name.match(
+          /^((app-|^)build-manifest\.json|react-loadable-manifest\.json)$/
+        )
+      ) {
+        return true;
+      }
+      if (isDev && !asset.name.startsWith("static/runtime/")) {
+        return true;
+      }
+      return false;
     },
   ],
 });
 
-module.exports = withPWA({
-  reactStrictMode: true,
-});
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    appDir: true,
+  },
+};
+
+module.exports = withPWA(nextConfig);
