@@ -1,6 +1,8 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { BIZ_UDPGothic } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+
 import Pwa from "./_components/Pwa";
 
 const bizUd = BIZ_UDPGothic({
@@ -29,6 +31,7 @@ export default function RootLayout({
       <body className={bizUd.className}>
         {children}
         <Pwa />
+        <Analytics />
       </body>
     </html>
   );
