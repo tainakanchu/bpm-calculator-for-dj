@@ -76,7 +76,7 @@ export const BpmComponent: React.FC<Props> = ({}) => {
           <div className="flex flex-col gap-6 justify-center">
             <p>
               {/* gyro */}
-              {gyro.x.toFixed(1)} / {gyro.y.toFixed(1)} / {gyro.z.toFixed(1)}
+              {gyro.x.toFixed(10)} / {gyro.y.toFixed(10)} / {gyro.z.toFixed(10)}
             </p>
           </div>
         </div>
