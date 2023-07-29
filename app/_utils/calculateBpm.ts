@@ -1,3 +1,5 @@
+import { BpmStatisticInfoOrEmpty } from "../_types";
+
 // データとして使用する最大の過去時間
 const MAX_PAST_TIME = 20 * 1000;
 
@@ -13,10 +15,9 @@ const simpleMovingAverageHandler =
  * BPMを計算する
  * @param dateList 記録された時間のリスト
  */
-export const calculateBpm: (dateList: Date[]) => {
-  value: number | null;
-  sd: number | null;
-} = (dateList) => {
+export const calculateBpm: (dateList: Date[]) => BpmStatisticInfoOrEmpty = (
+  dateList
+) => {
   // 閾値以内に記録されたデータだけ使う
   const now = new Date();
   const past = new Date(now.getTime() - MAX_PAST_TIME);
@@ -82,8 +83,8 @@ export const calculateBpm: (dateList: Date[]) => {
 };
 
 const emptyReturn = {
-  value: null,
-  sd: null,
+  value: undefined,
+  sd: undefined,
 };
 
 /**
