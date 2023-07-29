@@ -3,7 +3,7 @@ import React from "react";
 
 import { BpmButton } from "./BpmButton";
 import { SubBpmComponent } from "./SubBpmComponent";
-import { useBpmCalculator } from "../_hooks";
+import { useAccuracyColor, useBpmCalculator } from "../_hooks";
 import { BpmConvertSetting } from "../_types/BpmConvertSetting";
 
 type Props = {};
@@ -27,34 +27,9 @@ export const BpmComponent: React.FC<Props> = ({}) => {
   const { handleAddTimeData, handleClearTimeData, bpm, convertedBpmList } =
     useBpmCalculator({ bpmConvertSettings });
 
-  const { sd: _sd, value } = bpm;
+  const { sd, value } = bpm;
 
-  const sd = _sd ?? 50;
-
-  // 5刻みぐらいで色を変える
-  const bpmColor = React.useMemo(() => {
-    if (sd < 30) {
-      return "text-green-500";
-    } else if (sd < 35) {
-      return "text-green-400";
-    } else if (sd < 40) {
-      return "text-green-300";
-    } else if (sd < 45) {
-      return "text-yellow-200";
-    } else if (sd < 50) {
-      return "text-yellow-100";
-    } else if (sd < 55) {
-      return "text-red-100";
-    } else if (sd < 60) {
-      return "text-red-200";
-    } else if (sd < 65) {
-      return "text-red-300";
-    } else if (sd < 70) {
-      return "text-red-400";
-    } else {
-      return "text-red-500";
-    }
-  }, [sd]);
+  const bpmColor = useAccuracyColor(sd ?? 50);
 
   return (
     <div>
