@@ -1,7 +1,7 @@
 {
   "short_name": "BPM Calc",
   "name": "BPM calculator for DJ",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "theme_color": "#080808",
   "background_color": "#080808",
   "display": "standalone",
