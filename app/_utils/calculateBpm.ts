@@ -9,15 +9,14 @@ const simpleMovingAverageHandler =
   (acc: number, cur: number): number =>
     acc + cur / count;
 
-type Return = {
+/**
+ * BPMを計算する
+ * @param dateList 記録された時間のリスト
+ */
+export const calculateBpm: (dateList: Date[]) => {
   value: number | null;
   sd: number | null;
-};
-
-/**
- *
- */
-export const bpmCalculator: (dateList: Date[]) => Return = (dateList) => {
+} = (dateList) => {
   // 閾値以内に記録されたデータだけ使う
   const now = new Date();
   const past = new Date(now.getTime() - MAX_PAST_TIME);
@@ -82,7 +81,7 @@ export const bpmCalculator: (dateList: Date[]) => Return = (dateList) => {
   };
 };
 
-const emptyReturn: Return = {
+const emptyReturn = {
   value: null,
   sd: null,
 };
