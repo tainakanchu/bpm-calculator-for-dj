@@ -32,7 +32,7 @@ export const useBpmCalculator = (setting: {
       return {
         label,
         value: bpm.value
-          ? (bpm.value * setting.numerator) / setting.denominator
+          ? bpm.value.times(setting.numerator).div(setting.denominator)
           : null,
       };
     });

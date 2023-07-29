@@ -1,6 +1,8 @@
+import BigNumber from "bignumber.js";
+
 export type BpmStatisticInfo = {
-  value: number;
-  sd: number;
+  value: BigNumber;
+  sd: BigNumber;
 };
 
 export type EmptyBpmStatisticInfo = {
