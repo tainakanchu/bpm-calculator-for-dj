@@ -34,6 +34,27 @@ export const BpmComponent: React.FC<Props> = ({}) => {
 
   const bpmColor = useAccuracyColor(sd?.toNumber() ?? 50);
 
+  // ジャイロセンサーの値を取得する
+  const [gyro, setGyro] = React.useState({ x: 0, y: 0, z: 0 });
+  React.useEffect(() => {
+    const handleDeviceMotion = (event: DeviceMotionEvent) => {
+      const gyro = event.accelerationIncludingGravity;
+      gyro &&
+        gyro.x &&
+        gyro.y &&
+        gyro.z &&
+        setGyro({
+          x: gyro.x,
+          y: gyro.y,
+          z: gyro.z,
+        });
+    };
+    window.addEventListener("devicemotion", handleDeviceMotion);
+    return () => {
+      window.removeEventListener("devicemotion", handleDeviceMotion);
+    };
+  }, []);
+
   return (
     <div>
       <BpmButton onButtonClick={handleAddTimeData}>
@@ -50,6 +71,13 @@ export const BpmComponent: React.FC<Props> = ({}) => {
                 />
               );
             })}
+          </div>
+
+          <div className="flex flex-col gap-6 justify-center">
+            <p>
+              {/* gyro */}
+              {gyro.x.toFixed(1)} / {gyro.y.toFixed(1)} / {gyro.z.toFixed(1)}
+            </p>
           </div>
         </div>
       </BpmButton>
