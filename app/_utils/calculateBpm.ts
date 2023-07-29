@@ -61,14 +61,14 @@ export const calculateBpm: (dateList: Date[]) => {
     (diff) => Math.abs(diff - average) < σ
   );
 
-  // データが減りすぎの時は第一段階の計算結果を返す
-  if (filteredDiffList2.length < 8) return tmpReturn;
-
   // 改めて平均値を計算
   const average2 = filteredDiffList2.reduce(
     simpleMovingAverageHandler(filteredDiffList2.length),
     0
   );
+
+  // average２ がゼロの時は第一段階の計算結果を返す
+  if (average2 === 0) return tmpReturn;
 
   // 改めて標準偏差を計算
   const sd = calculateStandardDeviation(filteredDiffList2);
