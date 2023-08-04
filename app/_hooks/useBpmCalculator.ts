@@ -1,6 +1,7 @@
 import React from "react";
 import { calculateBpm } from "../_utils";
 import { BpmConvertSetting } from "../_types/BpmConvertSetting";
+import { BpmStatisticInfoOrEmpty } from "../_types";
 
 /**
  * BPMを計算するフック
@@ -21,7 +22,7 @@ export const useBpmCalculator = (setting: {
     setDateList([]);
   }, []);
 
-  const bpm = React.useMemo(() => {
+  const bpm: BpmStatisticInfoOrEmpty = React.useMemo(() => {
     return calculateBpm(dateList);
   }, [dateList]);
 
@@ -31,7 +32,7 @@ export const useBpmCalculator = (setting: {
       return {
         label,
         value: bpm.value
-          ? (bpm.value * setting.numerator) / setting.denominator
+          ? bpm.value.times(setting.numerator).div(setting.denominator)
           : null,
       };
     });

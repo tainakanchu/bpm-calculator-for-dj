@@ -5,6 +5,7 @@ import { BpmButton } from "./BpmButton";
 import { SubBpmComponent } from "./SubBpmComponent";
 import { useAccuracyColor, useBpmCalculator } from "../_hooks";
 import { BpmConvertSetting } from "../_types/BpmConvertSetting";
+import BigNumber from "bignumber.js";
 
 type Props = {};
 
@@ -23,20 +24,26 @@ const bpmConvertSettings: BpmConvertSetting[] = [
   },
 ];
 
+BigNumber.config({ DECIMAL_PLACES: 150 });
+
 export const BpmComponent: React.FC<Props> = ({}) => {
   const { handleAddTimeData, handleClearTimeData, bpm, convertedBpmList } =
     useBpmCalculator({ bpmConvertSettings });
 
   const { sd, value } = bpm;
 
-  const bpmColor = useAccuracyColor(sd ?? 50);
+  const bpmColor = useAccuracyColor(sd?.toNumber() ?? 50);
 
   return (
     <div>
       <BpmButton onButtonClick={handleAddTimeData}>
-        <div className="w-screen h-screen flex gap-16 justify-center items-center flex-col">
-          <p className="text-6xl font-bold">TAP</p>
-          <p className={`text-8xl ${bpmColor}`}>{value?.toFixed(1) ?? "🎶"}</p>
+        <div className="w-screen h-screen flex gap-16 flex-wrap justify-center items-center flex-col sm:flex-row">
+          <div className="flex gap-16 justify-center items-center flex-col">
+            <p className="text-6xl font-bold">TAP</p>
+            <p className={`text-8xl ${bpmColor}`}>
+              {bpm.value?.toFixed(1) ?? "🎶"}
+            </p>
+          </div>
           <div className="flex flex-col gap-6 justify-center">
             {convertedBpmList.map((convertedBpm) => {
               return (
