@@ -37,9 +37,13 @@ export const BpmComponent: React.FC<Props> = ({}) => {
   return (
     <div>
       <BpmButton onButtonClick={handleAddTimeData}>
-        <div className="w-screen h-screen flex gap-16 justify-center items-center flex-col">
-          <p className="text-6xl font-bold">TAP</p>
-          <p className={`text-8xl ${bpmColor}`}>{value?.toFixed(1) ?? "🎶"}</p>
+        <div className="w-screen h-screen flex gap-16 flex-wrap justify-center items-center flex-col sm:flex-row">
+          <div className="flex gap-16 justify-center items-center flex-col">
+            <p className="text-6xl font-bold">TAP</p>
+            <p className={`text-8xl ${bpmColor}`}>
+              {bpm.value?.toFixed(1) ?? "🎶"}
+            </p>
+          </div>
           <div className="flex flex-col gap-6 justify-center">
             {convertedBpmList.map((convertedBpm) => {
               return (
