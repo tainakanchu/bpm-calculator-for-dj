@@ -19,7 +19,6 @@ runs:
         node-version: ${{ inputs.NODE_VERSION }}
         cache: "pnpm"
         cache-dependency-path: "./pnpm-lock.yaml"
-        cache-name: "pnpm-cache-${{ inputs.NODE_VERSION }}"
 
     - name: Display version of node.js, pnpm
       run: |
