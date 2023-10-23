@@ -26,5 +26,11 @@
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.2.2"
+  },
+  "volta": {
+    "node": "20.8.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
