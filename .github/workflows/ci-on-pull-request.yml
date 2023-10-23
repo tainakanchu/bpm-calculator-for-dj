@@ -62,3 +62,31 @@ jobs:
 
       - name: lint
         run: pnpm lint
+  
+  check-version:
+    runs-on: ubuntu-latest
+    # master への PR の時のみ実施
+    if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master'
+
+    steps:
+      # master ブランチのバージョンを取得
+      - name: Get master version
+        id: get_master_version
+        run: |
+          echo "::set-output name=version::$(git show origin/master:package.json | jq -r '.version')"
+
+      # PR ブランチのバージョンを取得
+      - name: Get PR version
+        id: get_pr_version
+        run: |
+          echo "::set-output name=version::$(git show HEAD:package.json | jq -r '.version')"
+
+      # PR ブランチのバージョンが master ブランチのバージョンと一致する場合は fail
+      - name: Check version
+        run: |
+          if [ "${{ steps.get_master_version.outputs.version }}" = "${{ steps.get_pr_version.outputs.version }}" ]; then
+            echo "Version is same"
+            exit 1
+          else
+            echo "Version is different"
+          fi
