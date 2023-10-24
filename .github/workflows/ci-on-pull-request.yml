@@ -69,17 +69,31 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master'
 
     steps:
+      # master と PRの HEAD をチェックアウトする
+      - name: Checkout master
+        uses: actions/checkout@v3
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
       # master ブランチのバージョンを取得
       - name: Get master version
         id: get_master_version
         run: |
-          echo "::set-output name=version::$(git show origin/master:package.json | jq -r '.version')"
+          echo "version=$(git show origin/master:package.json | jq -r '.version')" >> $GITHUB_OUTPUT
+
 
       # PR ブランチのバージョンを取得
       - name: Get PR version
         id: get_pr_version
         run: |
-          echo "::set-output name=version::$(git show HEAD:package.json | jq -r '.version')"
+          echo "version=$(git show HEAD:package.json | jq -r '.version')" >> $GITHUB_OUTPUT
 
       # PR ブランチのバージョンが master ブランチのバージョンと一致する場合は fail
       - name: Check version
