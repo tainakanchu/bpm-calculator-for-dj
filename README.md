@@ -1,8 +1,28 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# BPM Calculator fro DJ
 
-## Getting Started
+This application is a tool for DJs and music producers to calculate the tempo of beats (BPM: Beats Per Minute) in real time.
 
-First, run the development server:
+## About this app
+
+### Main Features
+
+- Calculate BPM in response to user taps
+  - The color of the displayed BPM indicates the accuracy of the calculated BPM, with green meaning the highest accuracy.
+- Display values of 1/2, 3/4, 4/3 of the calculated BPM
+
+> [!NOTE]
+> The calculation of beat taps uses a unique logic, and taps at obviously short intervals are ignored. Also, a new calculation begins after a certain time has passed from the first tap.
+
+### How to Use
+
+- Open the application.
+- Tap the screen to the beat. Each tap calculates the BPM and displays it on the screen.
+
+![BPM Calculator Application](./docs/images/screenshot.png)
+
+## Development Environment
+
+Development EnvironmentThis application is developed using [Next.js](https://nextjs.org/). To start the development server, run the following command:
 
 ```bash
 npm run dev
@@ -13,22 +33,3 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
