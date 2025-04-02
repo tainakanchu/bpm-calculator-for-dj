@@ -1,33 +1,22 @@
-const withPWAInit = require("next-pwa");
+/** @type {import('next').NextConfig} */
+const withSerwist = require("@serwist/next").default;
 
 const isDev = process.env.NODE_ENV !== "production";
 
-const withPWA = withPWAInit({
-  dest: "public",
-  disable: isDev,
+const nextConfig = {
+  // 他のNext.js設定...
+};
+
+module.exports = withSerwist({
+  // Service Worker設定
+  swSrc: "app/sw.ts", // 自前のService Workerファイル
+  swDest: "public/sw.js", // 出力先
+  disable: isDev, // 開発環境では無効化
+  // PWA設定
   register: true,
   skipWaiting: true,
-  scope: "/",
-  sw: "sw.js",
 
-  exclude: [
-    // add buildExcludes here
-    ({ asset, compilation }) => {
-      if (
-        asset.name.startsWith("server/") ||
-        asset.name.match(
-          /^((app-|^)build-manifest\.json|react-loadable-manifest\.json)$/
-        )
-      ) {
-        return true;
-      }
-      if (isDev && !asset.name.startsWith("static/runtime/")) {
-        return true;
-      }
-      return false;
-    },
-  ],
-  // オフラインフォールバックを設定
+  // キャッシュ設定
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
@@ -119,9 +108,4 @@ const withPWA = withPWAInit({
       },
     },
   ],
-});
-
-/** @type {import('next').NextConfig} */
-const nextConfig = {};
-
-module.exports = withPWA(nextConfig);
+})(nextConfig);

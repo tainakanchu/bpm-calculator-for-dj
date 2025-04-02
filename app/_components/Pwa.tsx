@@ -33,6 +33,19 @@ export default function Pwa() {
             if (installingWorker) {
               installingWorker.onstatechange = () => {
                 console.log("Service Worker状態変更: ", installingWorker.state);
+
+                // インストール完了時
+                if (installingWorker.state === "installed") {
+                  if (navigator.serviceWorker.controller) {
+                    console.log(
+                      "新しいコンテンツが利用可能です。更新してください。"
+                    );
+
+                    // 必要に応じて、ユーザーに更新を通知するロジックを実装可能
+                  } else {
+                    console.log("コンテンツはオフラインで利用可能です。");
+                  }
+                }
               };
             }
           };
