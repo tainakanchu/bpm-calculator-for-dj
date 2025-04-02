@@ -1,30 +1,41 @@
 /// <reference lib="webworker" />
 
-/**
- * このService Workerファイルは@serwist/nextによって処理され、
- * 最終的なService Workerコード（public/sw.js）が生成されます。
- */
+import { precacheAndRoute, cleanupOutdatedCaches } from "@serwist/precaching";
 
-import type { PrecacheEntry } from "@serwist/precaching";
-
-// Service WorkerのグローバルスコープにWB_MANIFESTが追加されます
+// マニフェスト定義
 declare const self: ServiceWorkerGlobalScope & {
-  __WB_MANIFEST: PrecacheEntry[];
+  // Serwistが生成するマニフェスト
+  __SW_MANIFEST: any[];
 };
 
-// スキップウェイティングを有効化
-self.addEventListener("install", () => {
+// 古いキャッシュをクリーンアップ
+cleanupOutdatedCaches();
+
+// マニフェストからリソースをプリキャッシュ
+precacheAndRoute(self.__SW_MANIFEST);
+
+// Service Workerのインストール時
+self.addEventListener("install", (event) => {
+  console.log("Service Worker installed");
+  // 即座にアクティブ化
   self.skipWaiting();
 });
 
-// クライアントコントロールを有効化
+// Service Workerのアクティベーション時
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  console.log("Service Worker activated");
+  // クライアントをコントロール
+  if ("clients" in self) {
+    const clients = self.clients as Clients;
+    event.waitUntil(clients.claim());
+  }
 });
 
-/**
- * 注意：
- * このファイルの残りのコード（キャッシュ戦略等）は
- * @serwist/nextによって自動的に生成されます。
- * next.config.jsのruntimeCaching設定が使用されます。
- */
+// MessageイベントでSKIP_WAITINGを処理
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
+// キャッシュは@serwist/nextにより自動生成されます
