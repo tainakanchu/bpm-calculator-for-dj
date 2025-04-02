@@ -70,9 +70,15 @@ export default function RootLayout({
     <html lang="ja">
       <head>
         <link rel="manifest" href="/manifest.webmanifest" />
-        <link rel="apple-touch-icon" href="/icon.png"></link>
+        <link rel="apple-touch-icon" href="/icon-192x192.png"></link>
         <link rel="icon" href="/favicon.png"></link>
         <meta name="theme-color" content="#080808" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+        <meta name="apple-mobile-web-app-title" content="BPM Calculator" />
         <meta
           name="google-site-verification"
           content="JwWIxoPltJpLgYWfsb-bRZa5r5_DrvCg_IeBAATCJo0"
