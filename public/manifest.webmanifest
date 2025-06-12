@@ -5,30 +5,61 @@
   "theme_color": "#080808",
   "background_color": "#080808",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "id": "/",
   "scope": "/",
   "start_url": "/",
-  "description": "Intelligent BPM Calculator for DJs",
+  "description": "Intelligent BPM Calculator for DJs - Works offline",
+  "categories": ["music", "utilities", "productivity"],
+  "lang": "ja",
+  "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-256x256.png",
       "sizes": "256x256",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icon-384x384.png",
       "sizes": "384x384",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "BPM計算開始",
+      "short_name": "計算開始",
+      "description": "BPM計算を開始します",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

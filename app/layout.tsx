@@ -4,6 +4,7 @@ import { BIZ_UDPGothic } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 
 import Pwa from "./_components/Pwa";
+import OfflineIndicator from "./_components/OfflineIndicator";
 
 const bizUd = BIZ_UDPGothic({
   weight: "400",
@@ -86,6 +87,7 @@ export default function RootLayout({
       </head>
       <body className={bizUd.className}>
         {children}
+        <OfflineIndicator />
         <Pwa />
         <Analytics />
       </body>
