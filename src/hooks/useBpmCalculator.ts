@@ -1,7 +1,7 @@
 import React from "react";
-import { calculateBpm } from "../_utils";
-import { BpmConvertSetting } from "../_types/BpmConvertSetting";
-import { BpmStatisticInfoOrEmpty } from "../_types";
+import { calculateBpm } from "../utils";
+import { BpmConvertSetting } from "../types/BpmConvertSetting";
+import { BpmStatisticInfoOrEmpty } from "../types";
 
 /**
  * BPMを計算するフック
@@ -28,7 +28,7 @@ export const useBpmCalculator = (setting: {
 
   const convertedBpmList = React.useMemo(() => {
     return setting.bpmConvertSettings.map((setting) => {
-      const label: string = `${setting.numerator}/${setting.denominator}`;
+      const label = `${setting.numerator}/${setting.denominator}`;
       return {
         label,
         value: bpm.value
