@@ -28,7 +28,7 @@ export const useBpmCalculator = (setting: {
 
   const convertedBpmList = React.useMemo(() => {
     return setting.bpmConvertSettings.map((setting) => {
-      const label: string = `${setting.numerator}/${setting.denominator}`;
+      const label = `${setting.numerator}/${setting.denominator}`;
       return {
         label,
         value: bpm.value

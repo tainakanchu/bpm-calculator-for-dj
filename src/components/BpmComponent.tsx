@@ -6,7 +6,7 @@ import { useAccuracyColor, useBpmCalculator } from "../hooks";
 import { BpmConvertSetting } from "../types/BpmConvertSetting";
 import BigNumber from "bignumber.js";
 
-type Props = {};
+type Props = Record<string, never>;
 
 const bpmConvertSettings: BpmConvertSetting[] = [
   {
@@ -25,7 +25,7 @@ const bpmConvertSettings: BpmConvertSetting[] = [
 
 BigNumber.config({ DECIMAL_PLACES: 150 });
 
-export const BpmComponent: React.FC<Props> = ({}) => {
+export const BpmComponent: React.FC<Props> = () => {
   const { handleAddTimeData, handleClearTimeData, bpm, convertedBpmList } =
     useBpmCalculator({ bpmConvertSettings });
 
