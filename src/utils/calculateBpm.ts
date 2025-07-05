@@ -4,7 +4,7 @@ import {
   BpmStatisticInfo,
   BpmStatisticInfoOrEmpty,
   EmptyBpmStatisticInfo,
-} from "../_types";
+} from "../types";
 
 // データとして使用する最大の過去時間
 const MAX_PAST_TIME = 20 * 1000;

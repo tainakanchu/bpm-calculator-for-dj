@@ -1,7 +1,7 @@
 import React from "react";
-import { calculateBpm } from "../_utils";
-import { BpmConvertSetting } from "../_types/BpmConvertSetting";
-import { BpmStatisticInfoOrEmpty } from "../_types";
+import { calculateBpm } from "../utils";
+import { BpmConvertSetting } from "../types/BpmConvertSetting";
+import { BpmStatisticInfoOrEmpty } from "../types";
 
 /**
  * BPMを計算するフック

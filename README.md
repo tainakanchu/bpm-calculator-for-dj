@@ -22,7 +22,7 @@ This application is a tool for DJs and music producers to calculate the tempo of
 
 ## Development Environment
 
-Development EnvironmentThis application is developed using [Next.js](https://nextjs.org/). To start the development server, run the following command:
+This application is developed using [Vite](https://vitejs.dev/) + [React](https://react.dev/). To start the development server, run the following command:
 
 ```bash
 npm run dev
@@ -32,4 +32,28 @@ yarn dev
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:5173](http://localhost:5173) with your browser to see the result.
+
+### Build
+
+To build the application for production:
+
+```bash
+npm run build
+# or
+yarn build
+# or
+pnpm build
+```
+
+### Preview
+
+To preview the production build:
+
+```bash
+npm run preview
+# or
+yarn preview
+# or
+pnpm preview
+```

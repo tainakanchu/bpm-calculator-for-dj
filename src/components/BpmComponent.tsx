@@ -1,10 +1,9 @@
-"use client";
 import React from "react";
 
 import { BpmButton } from "./BpmButton";
 import { SubBpmComponent } from "./SubBpmComponent";
-import { useAccuracyColor, useBpmCalculator } from "../_hooks";
-import { BpmConvertSetting } from "../_types/BpmConvertSetting";
+import { useAccuracyColor, useBpmCalculator } from "../hooks";
+import { BpmConvertSetting } from "../types/BpmConvertSetting";
 import BigNumber from "bignumber.js";
 
 type Props = {};
@@ -30,7 +29,7 @@ export const BpmComponent: React.FC<Props> = ({}) => {
   const { handleAddTimeData, handleClearTimeData, bpm, convertedBpmList } =
     useBpmCalculator({ bpmConvertSettings });
 
-  const { sd, value } = bpm;
+  const { sd } = bpm;
 
   const bpmColor = useAccuracyColor(sd?.toNumber() ?? 50);
 
