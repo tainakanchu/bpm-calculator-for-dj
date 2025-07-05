@@ -1,14 +1,14 @@
 name: ci-on-pr
 
-on: 
+on:
   push:
-    branches: 
-      - 'develop'
-      - 'master'
+    branches:
+      - "develop"
+      - "master"
   pull_request:
-    branches: 
-      - 'develop'
-      - 'master'
+    branches:
+      - "develop"
+      - "master"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [20, 22]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,7 +32,7 @@ jobs:
     needs: setup-dependencies
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [20, 22]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,7 +50,7 @@ jobs:
     needs: setup-dependencies
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [20, 22]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -62,7 +62,7 @@ jobs:
 
       - name: lint
         run: pnpm lint
-  
+
   check-version:
     runs-on: ubuntu-latest
     # master への PR の時のみ実施
@@ -87,7 +87,6 @@ jobs:
         id: get_master_version
         run: |
           echo "version=$(git show origin/master:package.json | jq -r '.version')" >> $GITHUB_OUTPUT
-
 
       # PR ブランチのバージョンを取得
       - name: Get PR version
