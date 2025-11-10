@@ -44,7 +44,7 @@ This application is a tool for DJs and music producers to calculate the tempo of
 ## Development
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 22+
 - pnpm (recommended) or npm/yarn
 
 ### Getting Started
