@@ -7,6 +7,7 @@ import {
   useBpmCalculator,
   useMicrophoneBeatDetector,
 } from "../hooks";
+import type { MicrophoneBeatDetectorResult } from "../hooks";
 import { BpmConvertSetting } from "../types/BpmConvertSetting";
 import BigNumber from "bignumber.js";
 
@@ -30,34 +31,60 @@ const bpmConvertSettings: BpmConvertSetting[] = [
 BigNumber.config({ DECIMAL_PLACES: 150 });
 
 export const BpmComponent: React.FC<Props> = () => {
-  const { handleAddTimeData, handleClearTimeData, bpm, convertedBpmList } =
-    useBpmCalculator({ bpmConvertSettings });
+  const {
+    handleAddTimeData,
+    handleClearTimeData,
+    applyBpmEstimate,
+    bpm,
+    convertedBpmList,
+  } = useBpmCalculator({ bpmConvertSettings });
 
   const { sd } = bpm;
 
   const bpmColor = useAccuracyColor(sd?.toNumber() ?? 50);
 
+  const [lastDetectedBpm, setLastDetectedBpm] = React.useState<number | null>(
+    null
+  );
+
+  const handleMicrophoneResult = React.useCallback(
+    ({ bpm: detectedBpm }: MicrophoneBeatDetectorResult) => {
+      applyBpmEstimate(detectedBpm);
+      setLastDetectedBpm(detectedBpm);
+    },
+    [applyBpmEstimate]
+  );
+
   const {
     start: startMicrophone,
     stop: stopMicrophone,
-    isListening: isMicrophoneListening,
+    isRecording: isMicrophoneRecording,
+    isProcessing: isMicrophoneProcessing,
     isSupported: isMicrophoneSupported,
     error: microphoneError,
-  } = useMicrophoneBeatDetector({ onBeat: handleAddTimeData });
+  } = useMicrophoneBeatDetector({
+    onBpmDetected: handleMicrophoneResult,
+  });
 
   const toggleMicrophone = React.useCallback(() => {
-    if (isMicrophoneListening) {
+    if (isMicrophoneRecording || isMicrophoneProcessing) {
       stopMicrophone();
     } else {
+      setLastDetectedBpm(null);
       void startMicrophone();
     }
-  }, [isMicrophoneListening, startMicrophone, stopMicrophone]);
+  }, [
+    isMicrophoneProcessing,
+    isMicrophoneRecording,
+    startMicrophone,
+    stopMicrophone,
+  ]);
 
   return (
     <div>
       <BpmButton
         onButtonClick={handleAddTimeData}
-        disabled={isMicrophoneListening}
+        disabled={isMicrophoneRecording || isMicrophoneProcessing}
       >
         <div className="w-screen h-screen flex gap-16 flex-wrap justify-center items-center flex-col sm:flex-row">
           <div className="flex gap-16 justify-center items-center flex-col">
@@ -85,12 +112,14 @@ export const BpmComponent: React.FC<Props> = () => {
           onClick={toggleMicrophone}
           disabled={!isMicrophoneSupported}
           className={`px-3 py-2 rounded border border-zinc-600 bg-zinc-900 transition-colors ${
-            isMicrophoneListening
+            isMicrophoneRecording || isMicrophoneProcessing
               ? "text-emerald-300 border-emerald-400"
               : "text-zinc-200 hover:border-sky-400 hover:text-sky-300"
           } ${!isMicrophoneSupported ? "opacity-50 cursor-not-allowed" : ""}`}
         >
-          {isMicrophoneListening ? "Stop microphone" : "Start microphone"}
+          {isMicrophoneRecording || isMicrophoneProcessing
+            ? "Stop microphone"
+            : "Start microphone"}
         </button>
         {!isMicrophoneSupported && (
           <p className="max-w-xs text-zinc-400">
@@ -100,8 +129,16 @@ export const BpmComponent: React.FC<Props> = () => {
         {microphoneError && (
           <p className="max-w-xs text-red-400">{microphoneError}</p>
         )}
-        {isMicrophoneListening && (
-          <p className="text-emerald-300">Listening for beats…</p>
+        {isMicrophoneRecording && (
+          <p className="text-emerald-300">Recording from microphone…</p>
+        )}
+        {isMicrophoneProcessing && (
+          <p className="text-amber-300">Analyzing audio for BPM…</p>
+        )}
+        {lastDetectedBpm && !isMicrophoneRecording && !isMicrophoneProcessing && (
+          <p className="text-sky-300">
+            マイク推定: {lastDetectedBpm.toFixed(1)} BPM
+          </p>
         )}
       </div>
       <button

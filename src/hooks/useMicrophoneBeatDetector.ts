@@ -1,131 +1,186 @@
 import React from "react";
+import { guess } from "web-audio-beat-detector";
 
-const DEFAULT_BUFFER_SIZE = 2048;
-const ENERGY_HISTORY_SIZE = 43;
-const DEFAULT_SENSITIVITY = 1.6;
-const DEFAULT_MIN_INTERVAL = 250;
+const DEFAULT_SAMPLE_DURATION_MS = 12000;
 
-const hasMediaDevicesSupport = () => {
+type AudioContextConstructor = typeof AudioContext;
+
+type ExtendedWindow = Window & {
+  webkitAudioContext?: AudioContextConstructor;
+};
+
+const getAudioContextConstructor = (): AudioContextConstructor | null => {
   if (typeof window === "undefined") {
+    return null;
+  }
+
+  const ctor = window.AudioContext ?? (window as ExtendedWindow).webkitAudioContext;
+
+  return ctor ?? null;
+};
+
+const hasMicrophoneSupport = () => {
+  if (typeof window === "undefined" || typeof navigator === "undefined") {
     return false;
   }
-  return !!navigator?.mediaDevices?.getUserMedia;
+
+  const hasMediaDevices = typeof navigator.mediaDevices?.getUserMedia === "function";
+  const hasMediaRecorder = "MediaRecorder" in window;
+  const hasAudioContext = getAudioContextConstructor() !== null;
+
+  return hasMediaDevices && hasMediaRecorder && hasAudioContext;
+};
+
+export type MicrophoneBeatDetectorResult = {
+  bpm: number;
+  offset: number;
 };
 
 export type MicrophoneBeatDetectorOptions = {
-  onBeat: () => void;
-  sensitivity?: number;
-  minIntervalMs?: number;
+  onBpmDetected: (result: MicrophoneBeatDetectorResult) => void;
+  sampleDurationMs?: number;
+  tempoSettings?: {
+    maxTempo?: number;
+    minTempo?: number;
+  };
 };
 
 export type MicrophoneBeatDetectorState = {
   start: () => Promise<void>;
   stop: () => void;
   isSupported: boolean;
-  isListening: boolean;
+  isRecording: boolean;
+  isProcessing: boolean;
   error: string | null;
 };
 
 export const useMicrophoneBeatDetector = (
   options: MicrophoneBeatDetectorOptions
 ): MicrophoneBeatDetectorState => {
-  const { onBeat, sensitivity = DEFAULT_SENSITIVITY, minIntervalMs = DEFAULT_MIN_INTERVAL } = options;
+  const { onBpmDetected, sampleDurationMs = DEFAULT_SAMPLE_DURATION_MS, tempoSettings } = options;
 
-  const isSupported = React.useMemo(() => hasMediaDevicesSupport(), []);
-
-  const [isListening, setIsListening] = React.useState(false);
+  const [isRecording, setIsRecording] = React.useState(false);
+  const [isProcessing, setIsProcessing] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const audioContextRef = React.useRef<AudioContext | null>(null);
-  const analyserRef = React.useRef<AnalyserNode | null>(null);
-  const sourceRef = React.useRef<MediaStreamAudioSourceNode | null>(null);
-  const gainNodeRef = React.useRef<GainNode | null>(null);
+  const isSupported = React.useMemo(() => hasMicrophoneSupport(), []);
+
+  const onBpmDetectedRef = React.useRef(onBpmDetected);
+  React.useEffect(() => {
+    onBpmDetectedRef.current = onBpmDetected;
+  }, [onBpmDetected]);
+
+  const tempoSettingsRef = React.useRef(tempoSettings);
+  React.useEffect(() => {
+    tempoSettingsRef.current = tempoSettings;
+  }, [tempoSettings]);
+
+  const chunksRef = React.useRef<Blob[]>([]);
+  const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
+  const recorderListenersRef = React.useRef<{
+    data: (event: BlobEvent) => void;
+    stop: () => void;
+  } | null>(null);
   const streamRef = React.useRef<MediaStream | null>(null);
-  const rafIdRef = React.useRef<number | null>(null);
-  const dataArrayRef = React.useRef<Float32Array | null>(null);
-  const energyHistoryRef = React.useRef<number[]>([]);
-  const lastBeatTimestampRef = React.useRef<number>(0);
+  const recordingTimeoutRef = React.useRef<number | null>(null);
+  const isMountedRef = React.useRef(true);
 
-  const cleanup = React.useCallback(() => {
-    if (rafIdRef.current !== null) {
-      cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = null;
+  const clearRecordingTimeout = React.useCallback(() => {
+    if (recordingTimeoutRef.current !== null) {
+      window.clearTimeout(recordingTimeoutRef.current);
+      recordingTimeoutRef.current = null;
+    }
+  }, []);
+
+  const resetRecorder = React.useCallback(() => {
+    clearRecordingTimeout();
+
+    const recorder = mediaRecorderRef.current;
+    const listeners = recorderListenersRef.current;
+
+    if (recorder && listeners) {
+      recorder.removeEventListener("dataavailable", listeners.data);
+      recorder.removeEventListener("stop", listeners.stop);
     }
 
-    if (analyserRef.current) {
-      analyserRef.current.disconnect();
-      analyserRef.current = null;
-    }
-
-    if (sourceRef.current) {
-      sourceRef.current.disconnect();
-      sourceRef.current = null;
-    }
-
-    if (gainNodeRef.current) {
-      gainNodeRef.current.disconnect();
-      gainNodeRef.current = null;
-    }
+    recorderListenersRef.current = null;
+    mediaRecorderRef.current = null;
 
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
 
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
-    }
+    chunksRef.current = [];
+  }, [clearRecordingTimeout]);
 
-    dataArrayRef.current = null;
-    energyHistoryRef.current = [];
-    lastBeatTimestampRef.current = 0;
-  }, []);
+  const processChunks = React.useCallback(
+    async (chunks: Blob[], mimeType: string) => {
+      if (chunks.length === 0) {
+        throw new Error("マイクからの音声が取得できませんでした。");
+      }
 
-  const stop = React.useCallback(() => {
-    cleanup();
-    setIsListening(false);
-  }, [cleanup]);
+      const AudioContextCtor = getAudioContextConstructor();
+      if (!AudioContextCtor) {
+        throw new Error("AudioContext を初期化できませんでした。");
+      }
 
-  const handleEnergySample = React.useCallback(() => {
-    const analyser = analyserRef.current;
-    const dataArray = dataArrayRef.current;
+      const audioContext = new AudioContextCtor();
 
-    if (!analyser || !dataArray) {
+      try {
+        const blob = new Blob(chunks, { type: mimeType });
+        const arrayBuffer = await blob.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        const tempoSettings = tempoSettingsRef.current;
+        const result = tempoSettings
+          ? await guess(audioBuffer, tempoSettings)
+          : await guess(audioBuffer);
+
+        if (!Number.isFinite(result.bpm)) {
+          throw new Error("BPM を推定できませんでした。");
+        }
+
+        if (isMountedRef.current) {
+          setError(null);
+          onBpmDetectedRef.current(result);
+        }
+      } finally {
+        await audioContext.close();
+      }
+    },
+    []
+  );
+
+  const handleRecorderStop = React.useCallback(async () => {
+    clearRecordingTimeout();
+
+    const recorder = mediaRecorderRef.current;
+    const mimeType = recorder?.mimeType ?? "audio/webm";
+    const chunks = chunksRef.current.slice();
+    chunksRef.current = [];
+
+    resetRecorder();
+
+    if (!isMountedRef.current) {
       return;
     }
 
-    analyser.getFloatTimeDomainData(dataArray);
+    setIsRecording(false);
+    setIsProcessing(true);
 
-    let sumSquares = 0;
-    for (let i = 0; i < dataArray.length; i += 1) {
-      const value = dataArray[i];
-      sumSquares += value * value;
-    }
-
-    const rms = Math.sqrt(sumSquares / dataArray.length);
-
-    const history = energyHistoryRef.current;
-    history.push(rms);
-    if (history.length > ENERGY_HISTORY_SIZE) {
-      history.shift();
-    }
-
-    if (history.length >= ENERGY_HISTORY_SIZE / 2) {
-      const mean = history.reduce((acc, value) => acc + value, 0) / history.length;
-      const variance = history.reduce((acc, value) => acc + (value - mean) ** 2, 0) / history.length;
-      const stdDev = Math.sqrt(variance);
-      const threshold = mean + stdDev * sensitivity;
-
-      const now = typeof performance !== "undefined" ? performance.now() : Date.now();
-      if (rms > threshold && now - lastBeatTimestampRef.current > minIntervalMs) {
-        lastBeatTimestampRef.current = now;
-        onBeat();
+    try {
+      await processChunks(chunks, mimeType);
+    } catch (err) {
+      if (isMountedRef.current) {
+        const message = err instanceof Error ? err.message : "マイクの解析に失敗しました。";
+        setError(message);
+      }
+    } finally {
+      if (isMountedRef.current) {
+        setIsProcessing(false);
       }
     }
-
-    rafIdRef.current = requestAnimationFrame(handleEnergySample);
-  }, [minIntervalMs, onBeat, sensitivity]);
+  }, [clearRecordingTimeout, processChunks, resetRecorder]);
 
   const start = React.useCallback(async () => {
     if (!isSupported) {
@@ -133,7 +188,7 @@ export const useMicrophoneBeatDetector = (
       return;
     }
 
-    if (isListening) {
+    if (isRecording || isProcessing) {
       return;
     }
 
@@ -141,46 +196,70 @@ export const useMicrophoneBeatDetector = (
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const AudioContextConstructor =
-        window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      const recorder = new MediaRecorder(stream);
 
-      if (!AudioContextConstructor) {
-        throw new Error("AudioContext を初期化できませんでした。");
+      streamRef.current = stream;
+      mediaRecorderRef.current = recorder;
+      chunksRef.current = [];
+
+      const handleDataAvailable = (event: BlobEvent) => {
+        if (event.data && event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
+      };
+
+      const handleStop = () => {
+        void handleRecorderStop();
+      };
+
+      recorder.addEventListener("dataavailable", handleDataAvailable);
+      recorder.addEventListener("stop", handleStop);
+      recorderListenersRef.current = {
+        data: handleDataAvailable,
+        stop: handleStop,
+      };
+
+      recorder.start();
+
+      if (isMountedRef.current) {
+        setIsRecording(true);
       }
 
-      const audioContext = new AudioContextConstructor();
-      audioContextRef.current = audioContext;
-
-      const source = audioContext.createMediaStreamSource(stream);
-      sourceRef.current = source;
-      streamRef.current = stream;
-
-      const analyser = audioContext.createAnalyser();
-      analyser.fftSize = DEFAULT_BUFFER_SIZE;
-      analyser.smoothingTimeConstant = 0.5;
-      analyserRef.current = analyser;
-
-      source.connect(analyser);
-
-      const gainNode = audioContext.createGain();
-      gainNode.gain.value = 0;
-      analyser.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      gainNodeRef.current = gainNode;
-
-      dataArrayRef.current = new Float32Array(analyser.fftSize);
-
-      setIsListening(true);
-      rafIdRef.current = requestAnimationFrame(handleEnergySample);
+      recordingTimeoutRef.current = window.setTimeout(() => {
+        if (mediaRecorderRef.current?.state === "recording") {
+          mediaRecorderRef.current.stop();
+        }
+      }, sampleDurationMs);
     } catch (err) {
       const message = err instanceof Error ? err.message : "マイクの初期化に失敗しました。";
-      setError(message);
-      stop();
+      if (isMountedRef.current) {
+        setError(message);
+        setIsRecording(false);
+        setIsProcessing(false);
+      }
+      resetRecorder();
     }
-  }, [handleEnergySample, isListening, isSupported, stop]);
+  }, [handleRecorderStop, isProcessing, isRecording, isSupported, resetRecorder, sampleDurationMs]);
+
+  const stop = React.useCallback(() => {
+    clearRecordingTimeout();
+
+    const recorder = mediaRecorderRef.current;
+
+    if (recorder && recorder.state !== "inactive") {
+      recorder.stop();
+    } else {
+      resetRecorder();
+      if (isMountedRef.current) {
+        setIsRecording(false);
+        setIsProcessing(false);
+      }
+    }
+  }, [clearRecordingTimeout, resetRecorder]);
 
   React.useEffect(() => {
     return () => {
+      isMountedRef.current = false;
       stop();
     };
   }, [stop]);
@@ -189,7 +268,8 @@ export const useMicrophoneBeatDetector = (
     start,
     stop,
     isSupported,
-    isListening,
+    isRecording,
+    isProcessing,
     error,
   };
 };
