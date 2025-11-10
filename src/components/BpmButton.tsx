@@ -3,14 +3,19 @@ import React from "react";
 type Props = {
   onButtonClick: () => void;
   children: React.ReactNode;
+  disabled?: boolean;
 };
 
-export const BpmButton: React.FC<Props> = ({ onButtonClick, children }) => {
+export const BpmButton: React.FC<Props> = ({ onButtonClick, children, disabled = false }) => {
   return (
-    <button onPointerDown={onButtonClick}>
+    <button
+      onPointerDown={disabled ? undefined : onButtonClick}
+      disabled={disabled}
+      className={disabled ? "cursor-not-allowed opacity-60" : undefined}
+    >
       <div
         className="
-        relative flex place-items-center 
+        relative flex place-items-center
         before:absolute 
         before:h-[300px]
         before:w-[480px] 
