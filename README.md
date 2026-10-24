@@ -47,7 +47,9 @@ This application is a tool for DJs and music producers to calculate the tempo of
 
 ### Prerequisites
 - Node.js 24 (see `.node-version`)
-- pnpm 10 (version pinned via `packageManager` in `package.json`; enable with `corepack enable`)
+- pnpm 10 (version pinned via `packageManager` in `package.json`)
+
+The local toolchain is managed by [mise](https://mise.jdx.dev/) (see `mise.toml`). `mise trust && mise install` installs Node.js (from `.node-version`) and pnpm; then run `pnpm install`.
 
 ### Getting Started
 
