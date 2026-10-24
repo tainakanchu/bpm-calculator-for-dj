@@ -35,17 +35,21 @@ This application is a tool for DJs and music producers to calculate the tempo of
 
 ## Tech Stack
 
-- **Frontend**: [Vite](https://vitejs.dev/) + [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Frontend**: [Vite](https://vitejs.dev/) 8 + [React](https://react.dev/) 19 + [TypeScript](https://www.typescriptlang.org/) 7
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) 4 (via `@tailwindcss/vite`)
 - **PWA**: [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) with [Workbox](https://workboxjs.org/)
 - **Math**: [BigNumber.js](https://mikemcl.github.io/bignumber.js/) for precise calculations
+- **Lint / Format**: [oxlint](https://oxc.rs/docs/guide/usage/linter) (type-aware) + [oxfmt](https://oxc.rs/docs/guide/usage/formatter)
+- **Testing**: [Vitest](https://vitest.dev/)
 - **Deployment**: [Vercel](https://vercel.com/)
 
 ## Development
 
 ### Prerequisites
-- Node.js 22+
-- pnpm (recommended) or npm/yarn
+- Node.js 24 (see `.node-version`)
+- pnpm 10 (version pinned via `packageManager` in `package.json`)
+
+The local toolchain is managed by [mise](https://mise.jdx.dev/) (see `mise.toml`). `mise trust && mise install` installs Node.js (from `.node-version`) and pnpm; then run `pnpm install`.
 
 ### Getting Started
 
@@ -58,15 +62,11 @@ This application is a tool for DJs and music producers to calculate the tempo of
 2. **Install dependencies**
    ```bash
    pnpm install
-   # or
-   npm install
    ```
 
 3. **Start development server**
    ```bash
    pnpm dev
-   # or
-   npm run dev
    ```
 
 4. **Open your browser**
@@ -75,9 +75,12 @@ This application is a tool for DJs and music producers to calculate the tempo of
 ### Scripts
 
 - `pnpm dev` - Start development server with HMR
-- `pnpm build` - Build for production
+- `pnpm build` - Type check (`tsc -b`) and build for production
 - `pnpm preview` - Preview production build locally
-- `pnpm lint` - Run ESLint checks
+- `pnpm typecheck` - Run TypeScript type checks
+- `pnpm lint` / `pnpm lint:fix` - Run oxlint (type-aware) checks / auto-fix
+- `pnpm format` / `pnpm format:check` - Format with oxfmt / check formatting
+- `pnpm test` / `pnpm test:watch` - Run unit tests with Vitest
 
 ### PWA Development
 

@@ -1,10 +1,6 @@
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
-import {
-  BpmStatisticInfo,
-  BpmStatisticInfoOrEmpty,
-  EmptyBpmStatisticInfo,
-} from "../types";
+import type { BpmStatisticInfo, BpmStatisticInfoOrEmpty, EmptyBpmStatisticInfo } from '../types';
 
 // データとして使用する最大の過去時間
 const MAX_PAST_TIME = 20 * 1000;
@@ -21,15 +17,11 @@ const simpleMovingAverageHandler =
  * BPMを計算する
  * @param dateList 記録された時間のリスト
  */
-export const calculateBpm: (dateList: Date[]) => BpmStatisticInfoOrEmpty = (
-  dateList
-) => {
+export const calculateBpm: (dateList: Date[]) => BpmStatisticInfoOrEmpty = (dateList) => {
   // 閾値以内に記録されたデータだけ使う
   const now = new Date();
   const past = new Date(now.getTime() - MAX_PAST_TIME);
-  const filteredDateList = dateList.filter(
-    (date) => date.getTime() > past.getTime()
-  );
+  const filteredDateList = dateList.filter((date) => date.getTime() > past.getTime());
 
   // 差分を計算
   const filteredDiffList: BigNumber[] = filteredDateList
@@ -49,7 +41,7 @@ export const calculateBpm: (dateList: Date[]) => BpmStatisticInfoOrEmpty = (
   // 差分の平均値を単純移動平均で計算
   const average = filteredDiffList.reduce(
     simpleMovingAverageHandler(filteredDiffList.length),
-    new BigNumber(0)
+    new BigNumber(0),
   );
 
   const σ = calculateStandardDeviation(filteredDiffList);
@@ -65,14 +57,12 @@ export const calculateBpm: (dateList: Date[]) => BpmStatisticInfoOrEmpty = (
   if (filteredDiffList.length < 10) return tmpReturn;
 
   // 標準偏差がわかったところで、平均から σ 以内のデータだけを使う
-  const filteredDiffList2 = filteredDiffList.filter((diff) =>
-    diff.minus(average).abs().lt(σ)
-  );
+  const filteredDiffList2 = filteredDiffList.filter((diff) => diff.minus(average).abs().lt(σ));
 
   // 改めて平均値を計算
   const average2 = filteredDiffList2.reduce(
     simpleMovingAverageHandler(filteredDiffList2.length),
-    new BigNumber(0)
+    new BigNumber(0),
   );
 
   // average２ がゼロの時は第一段階の計算結果を返す
@@ -102,9 +92,7 @@ const emptyReturn: EmptyBpmStatisticInfo = {
  * @returns variance
  */
 const calculateVariance = (list: BigNumber[]) => {
-  const average = list
-    .reduce((acc, cur) => acc.plus(cur), new BigNumber(0))
-    .div(list.length);
+  const average = list.reduce((acc, cur) => acc.plus(cur), new BigNumber(0)).div(list.length);
   return list
     .reduce((acc, cur) => acc.plus(cur.minus(average).pow(2)), new BigNumber(0))
     .div(list.length);

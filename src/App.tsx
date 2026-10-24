@@ -1,5 +1,5 @@
-import { BpmComponent } from './components/BpmComponent'
-import PWAUpdatePrompt from './components/PWAUpdatePrompt'
+import { BpmComponent } from './components/BpmComponent';
+import PWAUpdatePrompt from './components/PWAUpdatePrompt';
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
       </main>
       <PWAUpdatePrompt />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

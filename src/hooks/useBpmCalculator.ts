@@ -1,7 +1,7 @@
-import React from "react";
-import { calculateBpm } from "../utils";
-import { BpmConvertSetting } from "../types/BpmConvertSetting";
-import { BpmStatisticInfoOrEmpty } from "../types";
+import React from 'react';
+import { calculateBpm } from '../utils';
+import type { BpmConvertSetting } from '../types/BpmConvertSetting';
+import type { BpmStatisticInfoOrEmpty } from '../types';
 
 /**
  * BPMを計算するフック
@@ -9,9 +9,7 @@ import { BpmStatisticInfoOrEmpty } from "../types";
  * @param setting BPMを変換する設定
  * @returns BPMを計算するフック
  */
-export const useBpmCalculator = (setting: {
-  bpmConvertSettings: BpmConvertSetting[];
-}) => {
+export const useBpmCalculator = (setting: { bpmConvertSettings: BpmConvertSetting[] }) => {
   const [dateList, setDateList] = React.useState<Date[]>([]);
 
   const handleAddTimeData = React.useCallback(() => {
@@ -31,9 +29,7 @@ export const useBpmCalculator = (setting: {
       const label = `${setting.numerator}/${setting.denominator}`;
       return {
         label,
-        value: bpm.value
-          ? bpm.value.times(setting.numerator).div(setting.denominator)
-          : null,
+        value: bpm.value ? bpm.value.times(setting.numerator).div(setting.denominator) : null,
       };
     });
   }, [bpm.value, setting]);

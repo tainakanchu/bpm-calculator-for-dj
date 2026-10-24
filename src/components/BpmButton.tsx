@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 type Props = {
   onButtonClick: () => void;
@@ -23,10 +23,10 @@ export const BpmButton: React.FC<Props> = ({ onButtonClick, children }) => {
         after:h-[180px]
         after:w-[240px] 
         after:translate-x-1/3 
-        after:bg-gradient-conic
+        after:bg-conic-180/srgb
         after:blur-3xl 
         after:content-[''] 
-        before:bg-gradient-to-br 
+        before:bg-linear-to-br/srgb 
         before:from-transparent 
         before:to-zinc-800 
         before:opacity-10 

@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  // react / import はデフォルト off なので明示的に有効化する。
+  // typescript / unicorn / oxc はデフォルト on だが、意図を明示するため列挙する。
+  "plugins": ["react", "import", "typescript", "unicorn", "oxc"],
+  // correctness のみを error として扱う。pedantic / style 系は有効にしない。
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    // tsconfig.app.json が "jsx": "react-jsx"（新しい JSX 変換）なので、
+    // React を import する必要はない。
+    "react/react-in-jsx-scope": "off",
+    // React Hooks のルール
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "error",
+    // 以下は型情報を必要とするルール。`--type-aware` 付きでのみ評価される。
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": "error",
+    "typescript/await-thenable": "error"
+  },
+  "ignorePatterns": ["dist", "dev-dist", "node_modules"]
+}

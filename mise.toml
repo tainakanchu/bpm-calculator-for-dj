@@ -1,0 +1,13 @@
+# Node は .node-version を mise に読ませる。
+# mise は idiomatic version file（.node-version / .nvmrc 等）を
+# デフォルトでは無効にしているため、node だけ明示的に有効化する。
+# .node-version は CI（actions/setup-node）も読むので、
+# Node のバージョンの定義元はそちらに一本化する。
+[settings]
+idiomatic_version_file_enable_tools = ["node"]
+
+# pnpm はメジャーだけ指定する。pnpm 10 は package.json の packageManager に
+# 書かれたバージョンへ自動で切り替える（manage-package-manager-versions）ため、
+# 厳密なバージョンの定義元は packageManager に一本化する。
+[tools]
+pnpm = "10"
