@@ -1,1 +1,1 @@
-export * from "./calculateBpm";
+export * from './calculateBpm';

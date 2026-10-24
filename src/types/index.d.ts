@@ -1,2 +1,2 @@
-export * from "./BpmConvertSetting";
-export * from "./BpmStatisticInfo";
+export * from './BpmConvertSetting';
+export * from './BpmStatisticInfo';

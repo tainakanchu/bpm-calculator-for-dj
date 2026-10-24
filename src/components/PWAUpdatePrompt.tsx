@@ -1,4 +1,4 @@
-import { useRegisterSW } from 'virtual:pwa-register/react'
+import { useRegisterSW } from 'virtual:pwa-register/react';
 
 function PWAUpdatePrompt() {
   const {
@@ -7,17 +7,17 @@ function PWAUpdatePrompt() {
     updateServiceWorker,
   } = useRegisterSW({
     onRegistered(r) {
-      console.log('Service Worker登録成功。スコープ:', r?.scope)
+      console.log('Service Worker登録成功。スコープ:', r?.scope);
     },
     onRegisterError(error) {
-      console.error('Service Worker登録失敗:', error)
+      console.error('Service Worker登録失敗:', error);
     },
-  })
+  });
 
   const close = () => {
-    setOfflineReady(false)
-    setNeedRefresh(false)
-  }
+    setOfflineReady(false);
+    setNeedRefresh(false);
+  };
 
   return (
     <>
@@ -33,14 +33,16 @@ function PWAUpdatePrompt() {
           <div className="mt-2 flex gap-2">
             {needRefresh && (
               <button
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                onClick={() => updateServiceWorker(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700"
+                onClick={() => {
+                  void updateServiceWorker(true);
+                }}
               >
                 更新
               </button>
             )}
             <button
-              className="px-4 py-2 bg-zinc-600 text-white rounded hover:bg-zinc-700"
+              className="px-4 py-2 bg-zinc-600 text-white rounded-sm hover:bg-zinc-700"
               onClick={() => close()}
             >
               閉じる
@@ -49,7 +51,7 @@ function PWAUpdatePrompt() {
         </div>
       )}
     </>
-  )
+  );
 }
 
-export default PWAUpdatePrompt
+export default PWAUpdatePrompt;
