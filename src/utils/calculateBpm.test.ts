@@ -60,10 +60,39 @@ describe('calculateBpm', () => {
     expect(result.value?.toNumber()).toBeCloseTo(60000 / 700, 10);
   });
 
-  it('3000ms 以上空いた間隔は計算に使わない', () => {
-    // 3500ms と、ちょうど 3000ms の間隔は除外される
-    const result = calculateBpm(tapsFromIntervals([500, 3500, 500, 3000, 500]));
+  it.each([3000, 4000])('%ims の休止後は新しい計測を始める', (pause) => {
+    const result = calculateBpm(tapsFromIntervals([500, 500, 500, pause, 1000]));
+    expect(result.value?.toNumber()).toBe(60);
+    expect(result.sd?.toNumber()).toBe(0);
+  });
+
+  it('休止直後のタップだけでは空の結果を返す', () => {
+    const result = calculateBpm(tapsFromIntervals([500, 500, 4000]));
+    expect(result.value).toBeUndefined();
+    expect(result.sd).toBeUndefined();
+  });
+
+  it('複数の休止があるときは最後の休止後の間隔だけを使う', () => {
+    const result = calculateBpm(tapsFromIntervals([500, 3500, 750, 3000, 1000]));
+    expect(result.value?.toNumber()).toBe(60);
+    expect(result.sd?.toNumber()).toBe(0);
+  });
+
+  it.each([-100, 0, 10, 99])('%ims の短い間隔だけでは空の結果を返す', (interval) => {
+    const result = calculateBpm(tapsFromIntervals([interval]));
+    expect(result.value).toBeUndefined();
+    expect(result.sd).toBeUndefined();
+  });
+
+  it.each([-100, 0, 10, 99])('%ims の短い間隔を平均から除外する', (interval) => {
+    const result = calculateBpm(tapsFromIntervals([interval, 500]));
     expect(result.value?.toNumber()).toBe(120);
+    expect(result.sd?.toNumber()).toBe(0);
+  });
+
+  it('100ms の間隔は計算に使う', () => {
+    const result = calculateBpm(tapsFromIntervals([100]));
+    expect(result.value?.toNumber()).toBe(600);
     expect(result.sd?.toNumber()).toBe(0);
   });
 
