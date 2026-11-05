@@ -76,12 +76,6 @@ const emptyReturn: EmptyBpmStatisticInfo = {
   sd: undefined,
 };
 
-/**
- * 分散を計算する
- *
- * @param list
- * @returns variance
- */
 const calculateVariance = (list: BigNumber[]) => {
   const average = list.reduce((acc, cur) => acc.plus(cur), new BigNumber(0)).div(list.length);
   return list
@@ -89,12 +83,6 @@ const calculateVariance = (list: BigNumber[]) => {
     .div(list.length);
 };
 
-/**
- * 標準偏差を計算する
- *
- * @param list
- * @returns
- */
 const calculateStandardDeviation = (list: BigNumber[]) => {
   return calculateVariance(list).sqrt();
 };
