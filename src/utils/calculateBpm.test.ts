@@ -85,7 +85,13 @@ describe('calculateBpm', () => {
   });
 
   it.each([-100, 0, 10, 99])('%ims の短い間隔を平均から除外する', (interval) => {
-    const result = calculateBpm(tapsFromIntervals([interval, 500]));
+    const result = calculateBpm(tapsFromIntervals([interval, 500 - interval]));
+    expect(result.value?.toNumber()).toBe(120);
+    expect(result.sd?.toNumber()).toBe(0);
+  });
+
+  it('短いタップを挟んでも次の間隔は最後の有効なタップから測る', () => {
+    const result = calculateBpm(tapsFromIntervals([500, 10, 490]));
     expect(result.value?.toNumber()).toBe(120);
     expect(result.sd?.toNumber()).toBe(0);
   });

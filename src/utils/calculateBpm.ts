@@ -22,14 +22,18 @@ export const calculateBpm: (dateList: Date[]) => BpmStatisticInfoOrEmpty = (date
   const now = new Date();
   const past = new Date(now.getTime() - MAX_PAST_TIME);
   const filteredDateList = dateList.filter((date) => date.getTime() > past.getTime());
+  let lastAcceptedTime = 0;
 
   const filteredDiffList: BigNumber[] = filteredDateList
-    .reduce<number[]>((acc, cur, idx, arr) => {
+    .reduce<number[]>((acc, cur, idx) => {
       if (idx > 0) {
-        const diff = cur.getTime() - arr[idx - 1].getTime();
+        const diff = cur.getTime() - lastAcceptedTime;
+        if (diff < MIN_DIFF) return acc;
+        lastAcceptedTime = cur.getTime();
         if (diff >= DIFF_THRESHOLD) return [];
-        if (diff >= MIN_DIFF) return [...acc, diff];
+        return [...acc, diff];
       }
+      lastAcceptedTime = cur.getTime();
       return acc;
     }, [])
     .map((diff) => new BigNumber(diff));
